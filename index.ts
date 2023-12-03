@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import * as fs from "fs/promises";
+import { vocabulary } from "./vocabulary";
 
 interface VocabularyData {
   noun: string[];
@@ -18,11 +18,6 @@ interface WordCount {
   [key: string]: number;
 }
 
-const readVocabularyFile = async (): Promise<VocabularyData> => {
-  const data: string = await fs.readFile("vocabulary.json", "utf8");
-  return JSON.parse(data) as VocabularyData;
-};
-
 const countWords = (text: string, vocabulary: VocabularyData): WordCount => {
   const words = text.split(/\s+/);
   const wordCount: WordCount = {};
@@ -39,29 +34,33 @@ const countWords = (text: string, vocabulary: VocabularyData): WordCount => {
   return wordCount;
 };
 
+const headers = {
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Origin": "*",
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH",
+};
+
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  const vocabulary: VocabularyData = await readVocabularyFile();
+  const vocabularyData: VocabularyData = vocabulary;
   const searchWords = event.queryStringParameters || {};
   const query: string = searchWords.search as string;
 
   try {
-    const count = countWords(query, vocabulary);
+    const count = countWords(query, vocabularyData);
+
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify(count, null, 2),
     };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify(
-        {
-          error: `'Error reading or parsing the file:', ${error}`,
-        },
-        null,
-        2
-      ),
+      headers,
+      body: JSON.stringify(error, null, 2),
     };
   }
 };
