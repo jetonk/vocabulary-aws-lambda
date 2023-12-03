@@ -77,6 +77,10 @@ Which should result in response similar to the following:
 }
 ```
 
+### Run tests
+
+``` npm run test ```
+
 Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
 
 ```bash

@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { vocabulary } from "./vocabulary";
 
-interface VocabularyData {
+export interface VocabularyData {
   noun: string[];
   verb: string[];
   adjective: string[];
@@ -14,12 +14,15 @@ interface VocabularyData {
   numeral: string[];
 }
 
-interface WordCount {
+export interface WordCount {
   [key: string]: number;
 }
 
-const countWords = (text: string, vocabulary: VocabularyData): WordCount => {
-  const words = text.split(/\s+/);
+export const countWords = (
+  text: string,
+  vocabulary: VocabularyData
+): WordCount => {
+  const words = text.toLowerCase().split(/\s+/);
   const wordCount: WordCount = {};
 
   words.forEach((word) => {
